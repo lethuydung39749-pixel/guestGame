@@ -23,6 +23,7 @@ export interface GameRecord {
   attempts: number;
   durationSeconds: number;
   difficulty: number; // Number of cans (Game Size)
+  targetSequence?: BrandId[]; // The correct answer for this game
 }
 
 export type GameStatus = 'playing' | 'won' | 'lost'; // Lost technically not possible in this version, but good for type safety

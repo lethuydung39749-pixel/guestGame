@@ -25,7 +25,7 @@ const App: React.FC = () => {
   const [showInstructions, setShowInstructions] = useState<boolean>(true);
 
   // UI State
-  const [showHistory, setShowHistory] = useState<boolean>(true);
+  const [showHistory, setShowHistory] = useState<boolean>(false);
   const [showRecords, setShowRecords] = useState<boolean>(false);
   const [showWinModal, setShowWinModal] = useState<boolean>(false);
   const [showLevelMenu, setShowLevelMenu] = useState<boolean>(false);
@@ -332,7 +332,8 @@ const App: React.FC = () => {
           timestamp: Date.now(),
           attempts: newHistory.length,
           durationSeconds: elapsedTime,
-          difficulty: gameSize
+          difficulty: gameSize,
+          targetSequence: [...targetSequence] // Save correct sequence
         };
         
         const updatedRecords = [...records, newRecord];
@@ -822,41 +823,54 @@ const App: React.FC = () => {
                  ) : (
                     <div className="space-y-3">
                        {sortedRecords.map((rec, idx) => (
-                          <div key={rec.id} className="bg-white p-3 rounded-lg shadow-sm border border-slate-200 flex items-center gap-3">
-                             <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0
-                                ${idx === 0 ? 'bg-yellow-100 text-yellow-700' : 
-                                  idx === 1 ? 'bg-slate-200 text-slate-600' :
-                                  idx === 2 ? 'bg-orange-100 text-orange-700' : 'bg-slate-50 text-slate-400'}
-                             `}>
-                                {idx + 1}
+                          <div key={rec.id} className="bg-white p-3 rounded-lg shadow-sm border border-slate-200 flex flex-col gap-3">
+                             <div className="flex items-center gap-3">
+                                 <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0
+                                    ${idx === 0 ? 'bg-yellow-100 text-yellow-700' : 
+                                      idx === 1 ? 'bg-slate-200 text-slate-600' :
+                                      idx === 2 ? 'bg-orange-100 text-orange-700' : 'bg-slate-50 text-slate-400'}
+                                 `}>
+                                    {idx + 1}
+                                 </div>
+                                 
+                                 <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 text-xs text-slate-400 mb-1">
+                                       <Calendar size={12} />
+                                       {formatDate(rec.timestamp)}
+                                    </div>
+                                    <div className="flex gap-4 items-center">
+                                       <div className="flex items-center gap-1.5 min-w-[3.5rem]">
+                                          <Grid3X3 size={14} className="text-slate-400"/>
+                                          <span className="font-bold text-slate-800 text-sm">{rec.difficulty}罐</span>
+                                       </div>
+                                       <div className="flex items-center gap-1.5">
+                                          <span className="text-slate-400 text-xs">尝试</span>
+                                          <span className="font-bold text-slate-800">{rec.attempts}</span>
+                                       </div>
+                                       <div className="flex items-center gap-1.5">
+                                          <span className="text-slate-400 text-xs">耗时</span>
+                                          <span className="font-mono font-bold text-slate-800">{formatTime(rec.durationSeconds)}</span>
+                                       </div>
+                                    </div>
+                                 </div>
+
+                                 {idx < 3 && <Medal size={20} className={`flex-shrink-0 ${
+                                    idx === 0 ? 'text-yellow-400' :
+                                    idx === 1 ? 'text-slate-400' :
+                                    'text-orange-400'
+                                 }`} />}
                              </div>
                              
-                             <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 text-xs text-slate-400 mb-1">
-                                   <Calendar size={12} />
-                                   {formatDate(rec.timestamp)}
+                             {/* Display Saved Sequence */}
+                             {rec.targetSequence && rec.targetSequence.length > 0 && (
+                                <div className="bg-slate-100/50 p-2 rounded-lg border border-slate-100 flex items-center justify-center gap-1 flex-wrap">
+                                   {rec.targetSequence.map((brandId, i) => (
+                                      <div key={i} className="transform scale-[0.7] -my-2 -mx-1">
+                                         <SodaCan brandId={brandId} size="xs" disabled />
+                                      </div>
+                                   ))}
                                 </div>
-                                <div className="flex gap-4 items-center">
-                                   <div className="flex items-center gap-1.5 min-w-[3.5rem]">
-                                      <Grid3X3 size={14} className="text-slate-400"/>
-                                      <span className="font-bold text-slate-800 text-sm">{rec.difficulty}罐</span>
-                                   </div>
-                                   <div className="flex items-center gap-1.5">
-                                      <span className="text-slate-400 text-xs">尝试</span>
-                                      <span className="font-bold text-slate-800">{rec.attempts}</span>
-                                   </div>
-                                   <div className="flex items-center gap-1.5">
-                                      <span className="text-slate-400 text-xs">耗时</span>
-                                      <span className="font-mono font-bold text-slate-800">{formatTime(rec.durationSeconds)}</span>
-                                   </div>
-                                </div>
-                             </div>
-
-                             {idx < 3 && <Medal size={20} className={`flex-shrink-0 ${
-                                idx === 0 ? 'text-yellow-400' :
-                                idx === 1 ? 'text-slate-400' :
-                                'text-orange-400'
-                             }`} />}
+                             )}
                           </div>
                        ))}
                     </div>
